@@ -1,0 +1,191 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruby REST 2</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f5f7fb;color:#20242c}
+.header{background:linear-gradient(135deg,#171c55,#315bea,#6c35d9);color:white;padding:40px 20px;text-align:center;border-radius:0 0 35px 35px;box-shadow:0 8px 25px rgba(49,91,234,.25)}
+.logo{width:75px;height:75px;margin:0 auto 15px;border-radius:22px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.18);font-size:38px}
+.header h1{font-size:32px;margin-bottom:8px}
+.header p{opacity:.9}
+.container{max-width:850px;margin:25px auto;padding:15px}
+.page{display:none}.page.active{display:block}
+.home-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.card{background:white;border-radius:22px;padding:28px 20px;text-align:center;box-shadow:0 8px 25px rgba(0,0,0,.07);cursor:pointer;transition:.2s;border:1px solid #eef0f6}
+.card:active{transform:scale(.98)}.card:hover{transform:translateY(-4px)}
+.card-icon{font-size:38px;margin-bottom:12px}.card h3{margin-bottom:7px}.card p{font-size:13px;color:#777}
+.form-box{background:white;border-radius:24px;padding:28px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
+.form-box h2{margin-bottom:20px;color:#252b45}
+label{display:block;font-weight:bold;margin:15px 0 7px}
+input{width:100%;padding:14px;border:1px solid #ddd;border-radius:12px;font-size:16px;outline:none}
+input:focus{border-color:#315bea}
+.btn{width:100%;padding:14px;margin-top:14px;border:0;border-radius:12px;background:linear-gradient(135deg,#315bea,#5836dc);color:white;font-weight:bold;font-size:16px;cursor:pointer}
+.btn.green{background:linear-gradient(135deg,#12a866,#087d49)}.btn.red{background:linear-gradient(135deg,#ef4444,#c81e1e)}.btn.orange{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.back{text-align:center;color:#315bea;margin-top:18px;cursor:pointer;font-weight:bold}
+.balance{background:linear-gradient(135deg,#eef3ff,#f4efff);padding:25px;border-radius:18px;text-align:center;margin:20px 0}
+.balance small{display:block;color:#777;margin-bottom:8px}.balance strong{font-size:34px;color:#315bea}
+.pay{background:#fff8e8;border:2px dashed #f59e0b;padding:20px;border-radius:15px;text-align:center;margin:15px 0 20px;line-height:1.7}
+.pay-number{font-size:22px;font-weight:bold;color:#e47b00}
+.msg{padding:12px;margin:12px 0;border-radius:10px;text-align:center;font-weight:bold}
+.success{background:#e9f9f0;color:#11834b}.error{background:#ffecec;color:#d12525}.info{background:#eef3ff;color:#315bea}
+.plan{background:white;border:1px solid #e6e9f2;border-radius:20px;padding:22px;margin:15px 0;text-align:center;box-shadow:0 7px 20px rgba(0,0,0,.06)}
+.plan h3{color:#252b45;margin-bottom:10px}.price{font-size:30px;font-weight:bold;color:#315bea}
+.return{background:#effaf4;color:#11834b;padding:13px;border-radius:12px;margin:12px 0}.return strong{display:block;font-size:23px;margin-top:4px}
+.request{background:#fafbfe;border:1px solid #e4e7ef;border-radius:18px;padding:18px;margin:15px 0}
+.request h3{margin-bottom:12px}.request p{margin:7px 0}
+.pending{color:#f39c12;font-weight:bold}.approved{color:#16a05d;font-weight:bold}.rejected{color:#e53935;font-weight:bold}
+.small{font-size:13px;color:#777;text-align:center;margin-top:12px}
+hr{border:0;border-top:1px solid #eee;margin:25px 0}
+@media(max-width:600px){.header{padding:35px 15px}.header h1{font-size:26px}.home-grid{grid-template-columns:1fr}.form-box{padding:20px}.card{padding:24px}}
+</style></head><body>
+<header class="header"><div class="logo">💎</div><h1>Ruby REST 2</h1><p>Secure • Simple • Professional</p></header>
+<div class="container">
+<section id="home" class="page active"><div class="home-grid">
+<div class="card" onclick="showPage('login')"><div class="card-icon">🔐</div><h3>Login</h3><p>Access your account</p></div>
+<div class="card" onclick="showPage('signup')"><div class="card-icon">📝</div><h3>Create Account</h3><p>Register a new account</p></div>
+<div class="card" onclick="openDashboard()"><div class="card-icon">📊</div><h3>Dashboard</h3><p>View your account</p></div>
+<div class="card" onclick="openPoints()"><div class="card-icon">💎</div><h3>Points</h3><p>View available points</p></div>
+<div class="card" onclick="openDeposit()"><div class="card-icon">💰</div><h3>Deposit</h3><p>Add funds</p></div>
+<div class="card" onclick="openWithdraw()"><div class="card-icon">💸</div><h3>Withdrawal</h3><p>Request withdrawal</p></div>
+<div class="card" onclick="showPage('adminLogin')"><div class="card-icon">🛠️</div><h3>Admin Panel</h3><p>Manage requests</p></div>
+</div></section>
+
+<section id="signup" class="page"><div class="form-box"><h2>📝 Create Account</h2><div id="signupMsg"></div><label>Name</label><input id="signupName" type="text" placeholder="Your name"><label>Username</label><input id="signupUsername" type="text" placeholder="Choose username"><label>Password</label><input id="signupPassword" type="password" placeholder="Create password"><button type="button" class="btn" onclick="createAccount()">Create Account</button><div class="back" onclick="showPage('home')">← Back to Home</div></div></section>
+
+<section id="login" class="page"><div class="form-box"><h2>🔐 Login</h2><div id="loginMsg"></div><label>Username</label><input id="loginUsername" type="text" placeholder="Enter username"><label>Password</label><input id="loginPassword" type="password" placeholder="Enter password"><button type="button" class="btn" onclick="loginUser()">Login</button><div class="back" onclick="showPage('home')">← Back to Home</div></div></section>
+
+<section id="dashboard" class="page"><div class="form-box"><h2>Welcome, <span id="dashboardName"></span> 👋</h2><div class="balance"><small>Available Balance</small><strong id="dashboardBalance">Rs 0</strong></div><button class="btn" onclick="openPoints()">💎 Points</button><button class="btn green" onclick="openDeposit()">💰 Deposit</button><button class="btn" onclick="openWithdraw()">💸 Withdraw</button><button class="btn red" onclick="logoutUser()">Logout</button><div class="back" onclick="showPage('home')">← Home</div></div></section>
+
+<section id="points" class="page"><div class="form-box"><h2>💎 Points</h2><div id="pointMsg"></div><div class="pay"><b>Easypaisa Number</b><div class="pay-number">03701849710</div><br><b>Account Title</b><br>Ateeq Rahman<br><br>Payment bhejne ke baad point purchase request submit karein.</div><div class="plan"><h3>💎 Starter Point</h3><div class="price">Rs 280</div><div class="return">Estimated Daily Return<strong>Rs 72</strong></div><button type="button" class="btn green" onclick="selectPoint(280,72)">Buy / Request</button></div><div class="plan"><h3>💎 Premium Point</h3><div class="price">Rs 1,000</div><div class="return">Estimated Daily Return<strong>Rs 250</strong></div><button type="button" class="btn green" onclick="selectPoint(1000,250)">Buy / Request</button></div><div id="pointForm" style="display:none"><hr><h3>📝 Purchase Request</h3><label>Selected Point</label><input id="selectedPoint" type="text" readonly><label>Your Easypaisa Number</label><input id="pointAccount" type="tel" placeholder="03XXXXXXXXX"><label>TID / Transaction ID</label><input id="pointTid" type="text" placeholder="Enter transaction ID"><button type="button" class="btn green" onclick="submitPointRequest()">Submit Request</button></div><div class="back" onclick="openDashboard()">← Dashboard</div></div></section>
+
+<section id="deposit" class="page"><div class="form-box"><h2>💰 Deposit Funds</h2><div id="depositMsg"></div><div class="pay"><b>Easypaisa Number</b><div class="pay-number">03701849710</div><br><b>Account Title</b><br>Ateeq Rahman</div><label>Amount</label><input id="depositAmount" type="number" min="500" max="5000" placeholder="Rs 500 - Rs 5,000"><label>Your Easypaisa Number</label><input id="depositAccount" type="tel" placeholder="03XXXXXXXXX"><label>TID / Transaction ID</label><input id="depositTid" type="text" placeholder="Enter transaction ID"><button type="button" class="btn green" onclick="submitDeposit()">Submit Deposit</button><p class="small">Minimum Rs 500 • Maximum Rs 5,000</p><div class="back" onclick="openDashboard()">← Dashboard</div></div></section>
+
+<section id="withdraw" class="page"><div class="form-box"><h2>💸 Withdrawal</h2><div id="withdrawMsg"></div><label>Amount</label><input id="withdrawAmount" type="number" min="500" max="5000" placeholder="Rs 500 - Rs 5,000"><label>Your Easypaisa Number</label><input id="withdrawAccount" type="tel" placeholder="03XXXXXXXXX"><button type="button" class="btn" onclick="submitWithdraw()">Submit Withdrawal</button><p class="small">Minimum Rs 500 • Maximum Rs 5,000</p><div class="back" onclick="openDashboard()">← Dashboard</div></div></section>
+
+<section id="adminLogin" class="page"><div class="form-box"><h2>🛠️ Admin Login</h2><div id="adminLoginMsg"></div><label>Username</label><input id="adminUsername" type="text" placeholder="Admin username"><label>Password</label><input id="adminPassword" type="password" placeholder="Admin password"><button type="button" class="btn" onclick="adminLogin()">Admin Login</button><div class="back" onclick="showPage('home')">← Home</div></div></section>
+
+<section id="admin" class="page"><div class="form-box"><h2 style="text-align:center;color:#315bea">🛠 Admin Panel</h2><button type="button" class="btn orange" onclick="loadAdmin()">🔄 Refresh Requests</button><hr><h3>💎 Point Requests</h3><div id="adminPoints"></div><hr><h3>💰 Deposit Requests</h3><div id="adminDeposits"></div><hr><h3>💸 Withdrawal Requests</h3><div id="adminWithdrawals"></div><button type="button" class="btn red" onclick="adminLogout()">Admin Logout</button><div class="back" onclick="showPage('home')">← Home</div></div></section>
+</div>
+
+<script>
+function getUsers(){try{return JSON.parse(localStorage.getItem("ruby_users")||"[]")}catch(e){return[]}}
+function saveUsers(u){localStorage.setItem("ruby_users",JSON.stringify(u))}
+function getRequests(){try{return JSON.parse(localStorage.getItem("ruby_requests")||"[]")}catch(e){return[]}}
+function saveRequests(r){localStorage.setItem("ruby_requests",JSON.stringify(r))}
+function showPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));var pg=document.getElementById(id);if(pg){pg.classList.add("active");window.scrollTo(0,0)}}
+function showMessage(id,text,type){var box=document.getElementById(id);if(!box)return;box.className="msg "+type;box.textContent=text}
+
+function createAccount(){
+var name=document.getElementById("signupName").value.trim();
+var username=document.getElementById("signupUsername").value.trim();
+var password=document.getElementById("signupPassword").value;
+if(name===""||username===""||password===""){showMessage("signupMsg","Please fill all fields.","error");return}
+if(username.length<3){showMessage("signupMsg","Username must be at least 3 characters.","error");return}
+if(password.length<4){showMessage("signupMsg","Password must be at least 4 characters.","error");return}
+var users=getUsers();if(users.some(u=>u.username.toLowerCase()===username.toLowerCase())){showMessage("signupMsg","Username already exists.","error");return}
+users.push({id:Date.now(),name:name,username:username,password:password,balance:0,points:[]});saveUsers(users);
+document.getElementById("signupName").value="";document.getElementById("signupUsername").value="";document.getElementById("signupPassword").value="";
+showMessage("signupMsg","Account created successfully! Please login.","success");setTimeout(()=>showPage("login"),1200);
+}
+function loginUser(){
+var username=document.getElementById("loginUsername").value.trim();
+var password=document.getElementById("loginPassword").value;
+if(username===""||password===""){showMessage("loginMsg","Enter username and password.","error");return}
+var users=getUsers();var user=users.find(u=>u.username.toLowerCase()===username.toLowerCase()&&u.password===password);
+if(!user){showMessage("loginMsg","Wrong username or password.","error");return}
+localStorage.setItem("ruby_logged",user.username);openDashboard();
+}
+function getLoggedUser(){var username=localStorage.getItem("ruby_logged");if(!username)return null;var users=getUsers();return users.find(u=>u.username===username)||null}
+function openDashboard(){var user=getLoggedUser();if(!user){showPage("login");return}document.getElementById("dashboardName").textContent=user.name;document.getElementById("dashboardBalance").textContent="Rs "+user.balance;showPage("dashboard")}
+function openPoints(){var user=getLoggedUser();if(!user){showPage("login");return}showPage("points")}
+function selectPoint(price,dailyReturn){document.getElementById("selectedPoint").value="Rs "+price+" Point — Estimated Daily Return Rs "+dailyReturn;document.getElementById("pointForm").style.display="block";document.getElementById("pointAccount").value="";document.getElementById("pointTid").value="";document.getElementById("pointForm").scrollIntoView({behavior:"smooth"})}
+function submitPointRequest(){
+var user=getLoggedUser();if(!user){showPage("login");return}
+var selected=document.getElementById("selectedPoint").value;
+var account=document.getElementById("pointAccount").value.trim();
+var tid=document.getElementById("pointTid").value.trim();
+if(selected===""){showMessage("pointMsg","Please select a point.","error");return}
+if(account===""){showMessage("pointMsg","Please enter your Easypaisa number.","error");return}
+if(tid===""){showMessage("pointMsg","Please enter TID.","error");return}
+var price=selected.indexOf("1,000")!==-1?1000:280;var dailyReturn=selected.indexOf("1,000")!==-1?250:72;
+var requests=getRequests();requests.push({id:Date.now(),type:"point",username:user.username,name:user.name,price:price,dailyReturn:dailyReturn,account:account,tid:tid,status:"pending",date:new Date().toLocaleString()});saveRequests(requests);
+showMessage("pointMsg","Point request submitted. Waiting for admin approval.","success");document.getElementById("pointForm").style.display="none";
+}
+function openDeposit(){var user=getLoggedUser();if(!user){showPage("login");return}showPage("deposit")}
+function submitDeposit(){
+var user=getLoggedUser();if(!user){showPage("login");return}
+var amount=Number(document.getElementById("depositAmount").value);
+var account=document.getElementById("depositAccount").value.trim();
+var tid=document.getElementById("depositTid").value.trim();
+if(!amount){showMessage("depositMsg","Please enter amount.","error");return}
+if(amount<500){showMessage("depositMsg","Minimum deposit is Rs 500.","error");return}
+if(amount>5000){showMessage("depositMsg","Maximum deposit is Rs 5,000.","error");return}
+if(account===""){showMessage("depositMsg","Please enter your Easypaisa number.","error");return}
+if(tid===""){showMessage("depositMsg","Please enter TID.","error");return}
+var requests=getRequests();requests.push({id:Date.now(),type:"deposit",username:user.username,name:user.name,amount:amount,account:account,tid:tid,status:"pending",date:new Date().toLocaleString()});saveRequests(requests);
+showMessage("depositMsg","Deposit request submitted. Waiting for admin approval.","success");
+document.getElementById("depositAmount").value="";document.getElementById("depositAccount").value="";document.getElementById("depositTid").value="";
+}
+function openWithdraw(){var user=getLoggedUser();if(!user){showPage("login");return}showPage("withdraw")}
+function submitWithdraw(){
+var user=getLoggedUser();if(!user){showPage("login");return}
+var amount=Number(document.getElementById("withdrawAmount").value);
+var account=document.getElementById("withdrawAccount").value.trim();
+if(!amount){showMessage("withdrawMsg","Please enter amount.","error");return}
+if(amount<500){showMessage("withdrawMsg","Minimum withdrawal is Rs 500.","error");return}
+if(amount>5000){showMessage("withdrawMsg","Maximum withdrawal is Rs 5,000.","error");return}
+if(account===""){showMessage("withdrawMsg","Please enter your Easypaisa number.","error");return}
+if(amount>Number(user.balance)){showMessage("withdrawMsg","Insufficient balance.","error");return}
+var requests=getRequests();requests.push({id:Date.now(),type:"withdraw",username:user.username,name:user.name,amount:amount,account:account,status:"pending",date:new Date().toLocaleString()});saveRequests(requests);
+showMessage("withdrawMsg","Withdrawal request submitted. Waiting for admin approval.","success");
+document.getElementById("withdrawAmount").value="";document.getElementById("withdrawAccount").value="";
+}
+function adminLogin(){
+var username=document.getElementById("adminUsername").value.trim();
+var password=document.getElementById("adminPassword").value;
+if((username==="ateeq_admin" && password==="Ateeq@786-Ruby") || (username==="admin" && password==="admin123")){
+localStorage.setItem("ruby_admin","yes");loadAdmin();showPage("admin");return;
+}
+showMessage("adminLoginMsg","Wrong admin username or password.","error");
+}
+function requestHTML(r){
+var statusClass=r.status==="approved"?"approved":r.status==="rejected"?"rejected":"pending";
+return `<div class="request"><h3>${r.type.toUpperCase()} - <span class="${statusClass}">${r.status}</span></h3>
+<p><b>User:</b> ${r.name} (${r.username})</p>
+<p><b>Date:</b> ${r.date}</p>
+${r.price?`<p><b>Point:</b> Rs ${r.price} - Daily Rs ${r.dailyReturn}</p>`:""}
+${r.amount?`<p><b>Amount:</b> Rs ${r.amount}</p>`:""}
+${r.account?`<p><b>Easypaisa:</b> ${r.account}</p>`:""}
+${r.tid?`<p><b>TID:</b> ${r.tid}</p>`:""}
+${r.status==="pending"?`<div style="display:flex;gap:10px;margin-top:10px"><button class="btn green" style="margin:0" onclick="approveRequest(${r.id})">Approve</button><button class="btn red" style="margin:0" onclick="rejectRequest(${r.id})">Reject</button></div>`:""}
+</div>`;
+}
+function loadAdmin(){
+if(localStorage.getItem("ruby_admin")!=="yes"){showPage("adminLogin");return}
+var requests=getRequests();
+var points=requests.filter(r=>r.type==="point");
+var deposits=requests.filter(r=>r.type==="deposit");
+var withdrawals=requests.filter(r=>r.type==="withdraw");
+document.getElementById("adminPoints").innerHTML=points.length?points.map(requestHTML).join(""):'<div class="msg info">No point requests.</div>';
+document.getElementById("adminDeposits").innerHTML=deposits.length?deposits.map(requestHTML).join(""):'<div class="msg info">No deposit requests.</div>';
+document.getElementById("adminWithdrawals").innerHTML=withdrawals.length?withdrawals.map(requestHTML).join(""):'<div class="msg info">No withdrawal requests.</div>';
+}
+function approveRequest(id){
+var requests=getRequests();var req=requests.find(r=>r.id===id);if(!req)return;
+req.status="approved";
+if(req.type==="deposit"||req.type==="point"){
+var users=getUsers();var u=users.find(x=>x.username===req.username);if(u){u.balance+= (req.amount||req.price);saveUsers(u);if(!Array.isArray(u.points))u.points=[];if(req.type==="point")u.points.push(req);saveUsers(users)}}
+if(req.type==="withdraw"){
+var users=getUsers();var u=users.find(x=>x.username===req.username);if(u){u.balance-=req.amount;saveUsers(users)}
+}
+saveRequests(requests);loadAdmin();var logged=getLoggedUser();if(logged){document.getElementById("dashboardBalance").textContent="Rs "+logged.balance}
+}
+function rejectRequest(id){
+var requests=getRequests();var req=requests.find(r=>r.id===id);if(!req)return;
+req.status="rejected";saveRequests(requests);loadAdmin();
+}
+function adminLogout(){localStorage.removeItem("ruby_admin");showPage("home")}
+function logoutUser(){localStorage.removeItem("ruby_logged");showPage("home")}
+</script></body></html>
